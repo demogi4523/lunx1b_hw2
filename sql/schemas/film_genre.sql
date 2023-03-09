@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS film_genre (
+  film_id    int REFERENCES film (pk) ON UPDATE CASCADE ON DELETE CASCADE, 
+  genre_id   int REFERENCES genre (pk) ON UPDATE CASCADE ON DELETE CASCADE
+);
