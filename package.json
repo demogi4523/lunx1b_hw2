@@ -1,0 +1,16 @@
+{
+  "name": "lunx1b_hw2",
+  "author": {
+    "name": "demogi4523",
+    "email": "demogi4523@yandex.ru",
+    "url": "https://github.com/demogi4523/"
+  },
+  "type": "module",
+  "scripts": {
+    "start": "nodemon --experimental-modules index.js"
+  },
+  "packageManager": "yarn@3.4.1",
+  "devDependencies": {
+    "nodemon": "^2.0.21"
+  }
+}
