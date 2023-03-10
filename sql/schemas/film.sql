@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS film (
     pk BIGSERIAL PRIMARY KEY,
     name VARCHAR(256) NOT NULL,
-    productionYear DATE NOT NULL
+    production_year DATE NOT NULL
 );

@@ -4,7 +4,8 @@ import { dirname } from 'path';
 
 import Application from "./Frappy/Application.js";
 import Router from "./Frappy/Router.js";
-// import ORM from "./Frappy/ORM.js";
+import ORM from "./Frappy/ORM.js";
+import { Film } from "./ORM.js";
 import { pg_config } from "./config.js";
 
 
@@ -73,6 +74,69 @@ router.addPath('/genre/2', ['DELETE'], async (request, response) => {
     'Content-Type': 'application/json',
   });
   response.end(JSON.stringify({ status: 'Deleted' }));
+});
+
+
+router.addPath('/film', ['POST'], async (request, response) => {
+  const { name, production_year } = JSON.parse(request.body);
+  await Film.create({
+    name,
+    production_year,
+  });
+  response.writeHead(201, {
+    'Content-Type': "application/json",
+  })
+  response.end(JSON.stringify({ status: "Created" }));
+});
+
+router.addPath('/film', ['GET'], async (request, response) => {
+  const res = await Film.findAll({});
+  response.writeHead(200, {
+    'Content-Type': "application/json",
+  })
+  response.end(JSON.stringify(res));
+});
+
+router.addPath('/film/2', ['GET'], async (request, response) => {
+  const res = await Film.findOne({
+    where: {
+      pk: 2,
+    },
+  });
+  response.writeHead(200, {
+    'Content-Type': "application/json",
+  })
+  response.end(JSON.stringify(res));
+});
+
+router.addPath('/film/2', ['PUT'], async (request, response) => {
+  const { name, production_year } = JSON.parse(request.body);
+  await Film.update({
+      name,
+      production_year,
+    },
+    {
+    where: {
+      pk: 2,
+    },
+  });
+  response.writeHead(405, {
+    'Content-Type': "application/json",
+  })
+  response.end(JSON.stringify({ status: "Updated" }));
+});
+
+router.addPath('/film/2', ['DELETE'], async (request, response) => {
+  await Film.destroy(
+    {
+    where: {
+      pk: 2,
+    },
+  });
+  response.writeHead(405, {
+    'Content-Type': "application/json",
+  })
+  response.end(JSON.stringify({ status: "Deleted" }));
 });
 
 app.addRouter(router);
