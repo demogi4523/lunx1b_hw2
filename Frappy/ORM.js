@@ -104,3 +104,45 @@ export default class ORM {
     return res;
   }
 }
+
+export function createModel(tablename, schema_object) {
+  return new Model(tablename, schema_object);
+}
+
+
+class PrimaryKey {
+
+}
+
+class ForeignKey {
+
+}
+
+export class Model {
+  constructor(tablename, schema_object) {
+    this.tablename = tablename;
+    this._fields = this._get_fields(schema_object);
+  }
+
+  _get_database_type(field_type) {
+    switch (field_type) {
+      case String:
+        return 'varchar';
+      case Date:
+        return 'date';
+      case PrimaryKey:
+        return PrimaryKey.toString();
+      case ForeignKey:
+        return ForeignKey.toString();
+    }
+  }
+
+  _get_fields(schema_object) {
+    const fields = [];
+    for (const [field_name, field_type] of Object.entries(schema_object)) {
+      fields.push(`${field_name} ${field_type}`);
+    }
+    return fields;
+  }
+
+}

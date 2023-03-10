@@ -4,9 +4,8 @@ import { dirname } from 'path';
 
 import Application from "./Frappy/Application.js";
 import Router from "./Frappy/Router.js";
-import ORM from "./Frappy/ORM.js";
+// import ORM from "./Frappy/ORM.js";
 import { pg_config } from "./config.js";
-import { request } from "http";
 
 
 const __filename = fileURLToPath(import.meta.url);
