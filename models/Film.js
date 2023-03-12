@@ -1,6 +1,7 @@
 import { Sequelize, Model, DataTypes } from 'sequelize';
 
 import { pg_config } from "../config.js";
+import { Genre } from "./Genre.js";
 
 const { pg_host, pg_port, pg_database, pg_user, pg_password } = pg_config;
 
@@ -30,4 +31,12 @@ Film.init({
     underscored: true,
     modelName: 'Film', // We need to choose the model name
     tableName: 'film',
+});
+
+Film.belongsToMany(Genre, { 
+  through: 'film_genre', 
+  foreignKey: 'film_id',
+  // targetKey: 'genre_id',
+  otherKey: 'genre_id',
+  sourceKey: 'pk', 
 });

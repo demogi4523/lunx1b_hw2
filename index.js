@@ -7,6 +7,7 @@ import Router from "./Frappy/Router.js";
 import ORM from "./Frappy/ORM.js";
 import { Film } from "./models/Film.js";
 import { Genre } from "./models/Genre.js";
+import { Film_Genre } from "./models/Film_Genre.js";
 import { pg_config } from "./config.js";
 
 
@@ -19,8 +20,9 @@ const orm = new ORM(pg_config);
 await orm.connect();
 // TODO: refactor 3 lines down
 (async () => {
-  await Film.sync();
   await Genre.sync();
+  await Film.sync();
+  await Film_Genre.sync();
 })();
 
 const router = new Router();
@@ -36,20 +38,54 @@ const router = new Router();
 // });
 
 router.addPath('/film', ['POST'], async (request, response) => {
-  const { name, production_year } = JSON.parse(request.body);
+  const { name, production_year, genres } = JSON.parse(request.body);
   response.writeHead(201, {
     'Content-Type': 'application/json',
   });
   const res = await Film.create({
     name,
     production_year,
+    genres,
   });
-  // console.log(res);
+  const film_pk = res.dataValues.pk;
+  console.log(`film_pk: ${film_pk}`);
+  genres.forEach(async (genreTitle) => {
+    const genre = await Genre.findOne({
+      attributes: ['pk'],
+      where: {
+        name: genreTitle,
+      }
+    });
+    if (genre !== null) {
+      const genre_pk = genre.dataValues.pk;
+      console.log(`genre_pk: ${genre_pk}`);
+      console.log(`film_pk: ${film_pk}`);
+      await Film_Genre.create({
+        film_id: film_pk, 
+        genre_id: genre_pk,
+      });
+    } else {
+      console.log(`Genre: ${genreTitle} not exist!!!`);
+    }
+  });
   response.end(JSON.stringify({ status: 'Created' }));
 });
 
 router.addPath('/film', ['GET'], async (request, response) => {
-  const res = await Film.findAll({});
+  // FIXME: change getting pk via:
+  // const jane = await User.create({ firstName: "Jane", lastName: "Doe" });
+  // TODO: add attributes support via url params
+  const res = await Film.findAll({
+    include: { 
+      model: Genre, 
+      through: {
+        attributes: [
+          'film_id',
+        ],
+      }, 
+    },
+    // attributes: ['foo', 'bar']
+  });
   response.writeHead(200, {
     'Content-Type': 'application/json',
   });

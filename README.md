@@ -19,4 +19,7 @@ pg_docker_container> psql -U postgres
 
 > SELECT * FROM genre;
 > DROP TABLE genre CASCADE;
+
+> SELECT * FROM film_genre;
+> DROP TABLE film_genre CASCADE;
 ```
