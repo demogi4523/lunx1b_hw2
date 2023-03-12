@@ -18,14 +18,10 @@ const app = new Application();
 const orm = new ORM(pg_config);
 await orm.connect();
 // TODO: refactor 3 lines down
-// await orm.init_database(path.join(__dirname, 'sql', 'schemas', 'film.sql'));
 (async () => {
   await Film.sync();
   await Genre.sync();
 })();
-await orm.init_database(path.join(__dirname, 'sql', 'schemas', 'genre.sql'));
-//  await orm.init_database(path.join(__dirname, 'sql', 'schemas', 'film_genre.sql'));
-
 
 const router = new Router();
 // router.addPath('/', ['GET'], (request, response) => {
