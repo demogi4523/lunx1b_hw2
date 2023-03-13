@@ -6,6 +6,7 @@
     "url": "https://github.com/demogi4523/"
   },
   "type": "module",
+  "license": "MIT",
   "scripts": {
     "start": "nodemon --experimental-modules index.js"
   },
@@ -15,6 +16,6 @@
   },
   "dependencies": {
     "pg": "^8.10.0",
-    "sequelize": "^6.29.2"
+    "sequelize": "^6.29.3"
   }
 }
