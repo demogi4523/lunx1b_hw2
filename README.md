@@ -1,5 +1,9 @@
 # lunx1b_hw2
 
+## Postman public workspace for testing
+
+https://www.postman.com/supply-administrator-50403692/workspace/pgn/overview
+
 ## Postgres docker useful commands
 
 ```

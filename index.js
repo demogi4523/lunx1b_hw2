@@ -1,24 +1,12 @@
-import path from "path";
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-
 import Application from "./Frappy/Application.js";
 import Router from "./Frappy/Router.js";
-import ORM from "./Frappy/ORM.js";
 import { Film } from "./models/Film.js";
 import { Genre } from "./models/Genre.js";
 import { Film_Genre } from "./models/Film_Genre.js";
-import { pg_config } from "./config.js";
 
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 const app = new Application();
 
-const orm = new ORM(pg_config);
-await orm.connect();
-// TODO: refactor 3 lines down
 (async () => {
   await Genre.sync();
   await Film.sync();
@@ -38,7 +26,7 @@ const router = new Router();
 // });
 
 router.addPath('/film', ['POST'], async (request, response) => {
-  const { name, production_year, genres } = JSON.parse(request.body);
+  const { name, production_year, genres = [] } = JSON.parse(request.body);
   response.writeHead(201, {
     'Content-Type': 'application/json',
   });
@@ -48,7 +36,7 @@ router.addPath('/film', ['POST'], async (request, response) => {
     genres,
   });
   const film_pk = res.dataValues.pk;
-  console.log(`film_pk: ${film_pk}`);
+  // console.log(`film_pk: ${film_pk}`);
   genres.forEach(async (genreTitle) => {
     const genre = await Genre.findOne({
       attributes: ['pk'],
@@ -58,17 +46,18 @@ router.addPath('/film', ['POST'], async (request, response) => {
     });
     if (genre !== null) {
       const genre_pk = genre.dataValues.pk;
-      console.log(`genre_pk: ${genre_pk}`);
-      console.log(`film_pk: ${film_pk}`);
+      // console.log(`genre_pk: ${genre_pk}`);
+      // console.log(`film_pk: ${film_pk}`);
       await Film_Genre.create({
         film_id: film_pk, 
         genre_id: genre_pk,
       });
     } else {
+      // TODO: вернуть в теле ответа массив несуществующих жанров
       console.log(`Genre: ${genreTitle} not exist!!!`);
     }
   });
-  response.end(JSON.stringify({ status: 'Created' }));
+  response.end(JSON.stringify({ status: 'Created', pk: film_pk }));
 });
 
 router.addPath('/film', ['GET'], async (request, response) => {
@@ -84,7 +73,6 @@ router.addPath('/film', ['GET'], async (request, response) => {
         ],
       }, 
     },
-    // attributes: ['foo', 'bar']
   });
   response.writeHead(200, {
     'Content-Type': 'application/json',
@@ -93,16 +81,17 @@ router.addPath('/film', ['GET'], async (request, response) => {
   response.end(JSON.stringify(res));
 });
 
-router.addPath('/film/2', ['GET'], async (request, response) => {
+router.addPath('/film/<film_id:int>', ['GET'], async (request, response, params, parameters) => {
+  const { film_id } = parameters;
   const res = await Film.findOne({
     where: {
-      pk: 2,
+      pk: film_id,
     }
   });
   response.writeHead(200, {
     'Content-Type': 'application/json',
   });
-  console.log(res);
+  // console.log(res);
   if (res === null) {
     response.end(JSON.stringify({ status: 'Film with pk 2 not exist!!!' }));
   } else {
@@ -110,14 +99,15 @@ router.addPath('/film/2', ['GET'], async (request, response) => {
   }
 });
 
-router.addPath('/film/2', ['PUT'], async (request, response) => {
+router.addPath('/film/<film_id:int>', ['PUT'], async (request, response, params, parameters) => {
+  const { film_id } = parameters;
   const { name, production_year } = JSON.parse(request.body);
   const res = await Film.update({
     name,
     production_year,
   }, {
     where: {
-      pk: 2,
+      pk: film_id,
     }
   });
   response.writeHead(405, {
@@ -130,16 +120,17 @@ router.addPath('/film/2', ['PUT'], async (request, response) => {
   }
 });
 
-router.addPath('/film/2', ['DELETE'], async (request, response) => {
+router.addPath('/film/<film_id:int>', ['DELETE'], async (request, response, params, parameters) => {
+  const { film_id } = parameters;
   const res = await Film.destroy({
     where: {
-      pk: 2,
-    }
+      pk: film_id,
+    },
   });
   response.writeHead(405, {
     'Content-Type': 'application/json',
   });
-  console.log(res);
+  // console.log(res);
   if (res == 1) {
     response.end(JSON.stringify({ status: 'Deleted' }));
   } else {
@@ -169,16 +160,17 @@ router.addPath('/genre', ['GET'], async (request, response) => {
   response.end(JSON.stringify(res));
 });
 
-router.addPath('/genre/2', ['GET'], async (request, response) => {
+router.addPath('/genre/<genre_id:int>', ['GET'], async (request, response, params, parameters) => {
+  const { genre_id } = parameters;
   const res = await Genre.findOne({
     where: {
-      pk: 2,
+      pk: genre_id,
     }
   });
   response.writeHead(200, {
     'Content-Type': 'application/json',
   });
-  console.log(res);
+  // console.log(res);
   if (res === null) {
     response.end(JSON.stringify({ status: 'Genre with pk 2 not exist!!!' }));
   } else {
@@ -186,13 +178,14 @@ router.addPath('/genre/2', ['GET'], async (request, response) => {
   }
 });
 
-router.addPath('/genre/2', ['PUT'], async (request, response) => {
+router.addPath('/genre/<genre_id:int>', ['PUT'], async (request, response, params, parameters) => {
+  const { genre_id } = parameters;
   const { name } = JSON.parse(request.body);
   const res = await Genre.update({
     name,
   }, {
     where: {
-      pk: 2,
+      pk: genre_id,
     }
   });
   response.writeHead(405, {
@@ -205,10 +198,11 @@ router.addPath('/genre/2', ['PUT'], async (request, response) => {
   }
 });
 
-router.addPath('/genre/2', ['DELETE'], async (request, response) => {
+router.addPath('/genre/<genre_id:int>', ['DELETE'], async (request, response, params, parameters) => {
+  const { genre_id } = parameters;
   const res = await Genre.destroy({
     where: {
-      pk: 2,
+      pk: genre_id,
     }
   });
   response.writeHead(405, {
@@ -224,6 +218,3 @@ router.addPath('/genre/2', ['DELETE'], async (request, response) => {
 
 app.addRouter(router);
 app.listen();
-
-// TODO: move to app stop trigger
-// await orm.disconnect();

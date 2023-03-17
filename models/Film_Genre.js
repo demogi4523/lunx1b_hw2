@@ -1,8 +1,7 @@
 import { Sequelize, Model, DataTypes } from 'sequelize';
 
 import { pg_config } from "../config.js";
-import { Film } from './Film.js';
-import { Genre } from './Genre.js';
+
 
 const { pg_host, pg_port, pg_database, pg_user, pg_password } = pg_config;
 
@@ -11,30 +10,35 @@ const sequelize = new Sequelize(`postgres://${pg_user}:${pg_password}@${pg_host}
 export class Film_Genre extends Model {}
 
 Film_Genre.init({
+  pk: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
   film_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    references: {
-      model: Film,
-      key: 'pk',
-    },
   },
   genre_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    //  TODO: add support
-    // onDelete:
-    // onUpdate
-    references: {
-      model: Genre,
-      key: 'pk',
-    }
   },
   }, {
-    // Other model options go here
-    sequelize, // We need to pass the connection instance
+    sequelize,
     timestamps: false,
     underscored: true,
-    modelName: 'Film_Genre', // We need to choose the model name
+    modelName: 'Film_Genre',
     tableName: 'film_genre',
 });
+
+(async () => {
+  try {
+    await sequelize.queryInterface.addConstraint('film_genre', {
+      fields: ['film_id', 'genre_id'],
+      type: 'unique',
+      name: 'unique_composite_film_genre',
+    });
+  } catch (err) {
+    // console.log(err);
+  }
+})();
